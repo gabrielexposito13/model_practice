@@ -18,4 +18,12 @@ class CallCenter:
 
     def support(self, customer):
         random_time = max(1, np.random.normal(self.support_time, 4))
+        yield self.env.timeout(random_time)
+        print(f"Support finished for {customer} at {self.env.now:.2f}")
+
+def customer(env, name, call_center):
+    global customers_handled
+    print(f"Customer {name} enters waiting queue at {env.now:.2f}!")
+
+
         

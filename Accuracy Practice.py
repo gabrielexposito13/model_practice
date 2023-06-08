@@ -13,25 +13,27 @@ zombies_killed = 0
 
 class Apocalypse:
 
-    def __init__(self, env, num_survivors, accuracy, shots_per_minute):
+    def __init__(self, env, num_survivors, accuracy, shots_per_minute, zombie_attack_interval):
         self.env = env
         self.team = simpy.Resource(env, num_survivors)
         self.accuracy = accuracy
         self.shots_per_minute = shots_per_minute
+        self.zombie_attack_interval = zombie_attack_interval
+
 
     def defense(self, zombie):
         random_time = max(1, np.random.normal(self.shots_per_minute, 10))
         yield self.env.timeout(random_time)
         print(f"Dealt with {zombie} at {self.env.now:.2f}")
 
-def zombie(env, survivors):
+def zombie(env, name, survivors,):
     global zombies_killed
-    print(f"Zombie appears at {env.now:.2f}!")
+    print(f"Zombie {name} appears at {env.now:.2f}!")
     with survivors.team.request() as request:
         yield request
-        print(f"Zombie engaged at {env.now:.2f}!")
-        yield env.process(survivors.support)
-        print(f"Zombie killed at {env.now:.2f}!")
+        print(f"Zombie {name} engaged at {env.now:.2f}!")
+        yield env.process(survivors.defense)
+        print(f"Zombie {name} killed at {env.now:.2f}!")
         zombies_killed += 1
 
 def setup(env, num_survivors, shots_per_minute, accuracy, zombie_attack_interval):
